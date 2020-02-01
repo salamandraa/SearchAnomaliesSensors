@@ -3,9 +3,7 @@ package io
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.sql.functions.{from_json, col}
 
-case class KafkaIO(bootstrapServers: String, topic: String) {
-
-  val limitCountToInferSchema = 1000
+case class KafkaIO(bootstrapServers: String, topic: String, limitCountToInferSchema: Int = 1000) {
 
   def readStream(implicit spark: SparkSession): DataFrame = {
     import spark.implicits._

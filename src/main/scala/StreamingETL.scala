@@ -9,13 +9,15 @@ object StreamingETL extends App with SparkDebug {
   val kafkaInput = KafkaIO(Config.SourceKafka.sourceBrokers, Config.SourceKafka.sourceTopic)
   val kafkaOutputIncidents = KafkaIO(Config.OutputKafka.anomalyBrokers, Config.OutputKafka.anomalyTopic)
 
-  def transform(read: Dataset[LightSensorData]): Dataset[LightSensorData] = {
+  import spark.implicits._
+
+  def transform(read: Dataset[LightSensorData]) = {
     val detectors: List[DetectorSimpleAnomaly[LightSensorData]] = List(VoltageSimpleAnomaly)
 
-    detectors.map(detector => read.filter(detector.isAnomaly(_))).reduce(_.union(_))
+    // todo nothing do with duplication anomaly
+    detectors.map(detector => read.filter(x => detector.isAnomaly(x)).map(x => detector.toAnomaly(x))).reduce(_.union(_))
   }
 
-  import spark.implicits._
 
   val read = kafkaInput.readStream.as[LightSensorData]
   val transformData = transform(read)
@@ -26,6 +28,8 @@ object StreamingETL extends App with SparkDebug {
     foreachBatch { (ds, _) =>
       kafkaOutputIncidents.writeBatch(ds.toJSON)
       if (mode.isDebug) ds.show(false)
-    }.start().awaitTermination()
+    }.
+    start().
+    awaitTermination()
 
 }
