@@ -1,3 +1,3 @@
 package data
 
-case class LightSensorData(id: Int, voltage: Double)
+case class LightSensorData(id: Long, voltage: Double)

@@ -1,9 +1,14 @@
 object Config {
 
-  val sourceTopic = "sensors.data.raw"
-  val sourceBrokers = "localhost:9092"
 
-  val anomalyTopic = "sensors.anomaly"
-  val anomalyBrokers = "localhost:9092"
+  object SourceKafka {
+    val sourceTopic: String = "sensors.data.raw"
+    val sourceBrokers: String = "localhost:9092"
+  }
+
+  object OutputKafka {
+    val anomalyTopic: String = "sensors.anomaly"
+    val anomalyBrokers: String = "localhost:9092"
+  }
 
 }

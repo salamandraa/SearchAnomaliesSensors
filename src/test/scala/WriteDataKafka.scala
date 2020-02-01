@@ -1,7 +1,7 @@
 import data.LightSensorData
 import io.KafkaIO
 
-object WriteDataKafka extends App with Spark {
+object WriteDataKafka extends App with SparkDebug {
 
   import spark.implicits._
 
@@ -11,7 +11,7 @@ object WriteDataKafka extends App with Spark {
     LightSensorData(3, 5.1),
     LightSensorData(4, 4.5))
 
-  val kafkaOutput = KafkaIO(Config.sourceBrokers, Config.sourceTopic)
+  val kafkaOutput = KafkaIO(Config.SourceKafka.sourceBrokers, Config.SourceKafka.sourceTopic)
 
   kafkaOutput.writeBatch(testData.toDS().toJSON)
 
