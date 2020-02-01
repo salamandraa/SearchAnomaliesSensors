@@ -1,3 +1,4 @@
+import anomalies.{DetectorSimpleAnomaly, VoltageSimpleAnomaly}
 import data.LightSensorData
 import io.KafkaIO
 import org.apache.spark.sql.Dataset
@@ -8,14 +9,16 @@ object StreamingETL extends App with SparkDebug {
   val kafkaInput = KafkaIO(Config.SourceKafka.sourceBrokers, Config.SourceKafka.sourceTopic)
   val kafkaOutputIncidents = KafkaIO(Config.OutputKafka.anomalyBrokers, Config.OutputKafka.anomalyTopic)
 
-  def transform(read: Dataset[LightSensorData]) = {
+  def transform(read: Dataset[LightSensorData]): Dataset[LightSensorData] = {
+    val detectors: List[DetectorSimpleAnomaly[LightSensorData]] = List(VoltageSimpleAnomaly)
 
+    detectors.map(detector => read.filter(detector.isAnomaly(_))).reduce(_.union(_))
   }
 
   import spark.implicits._
 
   val read = kafkaInput.readStream.as[LightSensorData]
-  val transformData = read
+  val transformData = transform(read)
 
   transformData.
     writeStream.
