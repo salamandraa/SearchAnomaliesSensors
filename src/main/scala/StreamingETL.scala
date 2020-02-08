@@ -28,8 +28,7 @@ object StreamingETL extends App with SparkDebug {
     foreachBatch { (ds, _) =>
       kafkaOutputIncidents.writeBatch(ds.toJSON)
       if (mode.isDebug) ds.show(false)
-    }.
-    start().
+    }.start().
     awaitTermination()
 
 }
